@@ -1,5 +1,8 @@
 output_dir: "./checkpoints/stage1"
 logging_dir: "./logs"
+logging:
+  wandb: True
+  tensorboard: False
 # 数据集
 dataset:
   name: "coco_captions"
