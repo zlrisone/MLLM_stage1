@@ -4,8 +4,8 @@ from transformers import AutoModelForCausalLM, AutoModel
 import torch.nn.functional as F
 from typing import Optional, Dict, Any, List
 
-from llm import QwenDecoder
-from projector import LinearProjector
+from models.llm import QwenDecoder
+from models.projector import LinearProjector
 
 class MultimodalModel(nn.Module):
     """
@@ -35,7 +35,7 @@ class MultimodalModel(nn.Module):
         )
         
         # 强制冻结
-        for p in self.decoder.parameters():
+        for p in self.llm_decoder.parameters():
             p.requires_grad = False
         for p in self.vision_encoder.parameters():
             p.requires_grad = False
@@ -52,7 +52,6 @@ class MultimodalModel(nn.Module):
         print("=" * 50)
         print("Multimodal Model Summary")
         print("=" * 50)
-        print(f"Stage: {self.stage}")
         print(f"Total parameters: {total_params:,}")
         print(f"Trainable parameters: {trainable_params:,}")
         ratio = 100 * trainable_params / total_params
@@ -61,8 +60,8 @@ class MultimodalModel(nn.Module):
 
         # 各组件参数
         print("Component Parameters:")
-        print(f"  Vision Encoder: {self.vision_encoder.get_total_params():,} total, "
-              f"{self.vision_encoder.get_trainable_params():,} trainable")
+        # print(f"  Vision Encoder: {self.vision_encoder.get_total_params():,} total, "
+        #       f"{self.vision_encoder.get_trainable_params():,} trainable")
         print(f"  Projector: {self.projector.get_total_params():,} total, "
               f"{self.projector.get_trainable_params():,} trainable")
         print(f"  LLM Decoder: {self.llm_decoder.get_total_params():,} total, "

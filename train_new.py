@@ -234,7 +234,19 @@ def main():
         # 创建模型
         model = create_multimodal_model(config)
         model.to(device)
-
+        # 创建数据
+        train_dataset, val_dataset, train_loader, val_loader = build_train_val_dataloaders(
+            vision_model_name=config['model']['vision_encoder']['model_name'],
+            qwen_model_name=config['model']['llm']['model_name'],
+            split="val",
+            train_ratio=config['dataset']['train_ratio'],
+            batch_size=config['dataset']['batch_size'],
+            num_workers=config['dataset']['num_workers'],
+            max_length=config['dataset']['max_length'],
+            sample_one_caption=True,
+            add_prompt=False,
+            seed=config['seed'],
+        )
         # 创建优化器
         optimizer_config = config['optimizer']
         if optimizer_config['name'] == 'adamw':
@@ -273,18 +285,7 @@ def main():
                 f"start_epoch={start_epoch} | best_val_loss={best_val_loss:.6f}"
             )
         
-        train_dataset, val_dataset, train_loader, val_loader = build_train_val_dataloaders(
-            vision_model_name=config['model']['vision_encoder']['model_name'],
-            qwen_model_name=config['model']['llm']['model_name'],
-            split="val",
-            train_ratio=config['dataset']['train_ratio'],
-            batch_size=config['dataset']['batch_size'],
-            num_workers=config['dataset']['num_workers'],
-            max_length=config['dataset']['max_length'],
-            sample_one_caption=True,
-            add_prompt=False,
-            seed=config['seed'],
-        )
+        
 
         best_val_loss = train(
             model=model,

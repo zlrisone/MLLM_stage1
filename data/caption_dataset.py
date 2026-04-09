@@ -143,6 +143,7 @@ def build_coco_caption_dataloader(
         "lmms-lab/COCO-Caption",
         split=split,
         streaming=streaming,
+        cache_dir="./hf_cache"
     )
 
     collator = CocoCaptionAlignmentCollator(
@@ -172,6 +173,7 @@ def build_coco_caption_dataloader(
         )
 
     return dataset, dataloader
+
 def build_train_val_dataloaders(
     vision_model_name: str,
     qwen_model_name: str,
