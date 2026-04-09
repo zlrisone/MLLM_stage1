@@ -2,7 +2,7 @@ import argparse
 import yaml
 import os
 import random
-import tqdm
+from tqdm import tqdm
 
 import torch
 import torch.nn as nn
