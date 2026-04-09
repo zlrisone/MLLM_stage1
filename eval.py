@@ -8,7 +8,7 @@ import yaml
 from tqdm import tqdm
 
 from models.multimodal_model import create_multimodal_model
-from data.caption_dataset import build_train_val_dataloaders
+from data.caption_dataset import build_val_dataloaders
 from utils.checkpoint import create_checkpoint_manager
 
 
@@ -180,7 +180,7 @@ def main():
     num_workers = args.num_workers if args.num_workers is not None else config["dataset"]["num_workers"]
 
     # 构建数据
-    train_dataset, val_dataset, train_loader, val_loader = build_train_val_dataloaders(
+    val_dataset, eval_loader = build_val_dataloaders(
         vision_model_name=config["model"]["vision_encoder"]["model_name"],
         qwen_model_name=config["model"]["llm"]["model_name"],
         split=args.split,
@@ -192,7 +192,6 @@ def main():
         add_prompt=False,
         seed=config["seed"],
     )
-    eval_loader = val_loader
 
     # 加载训练后模型
     model = load_model_from_checkpoint(config, args.checkpoint, device)
