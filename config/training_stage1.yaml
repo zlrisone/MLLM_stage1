@@ -1,0 +1,63 @@
+output_dir: "./checkpoints/stage1"
+logging_dir: "./logs"
+# 数据集
+dataset:
+  name: "coco_captions"
+  train_ratio: 0.9
+  batch_size: 128
+  num_workers: 8
+  pin_memory: true
+  max_length: 128
+# 优化器
+optimizer:
+  name: "adamw"
+  lr: 0.001
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+
+# 学习率调度
+scheduler:
+  name: "cosine"
+  warmup_steps: 500
+  
+# 训练参数
+epochs: 3
+gradient_accumulation_steps: 2
+max_grad_norm: 1.0
+save_steps: 1000
+eval_steps: 1000
+logging_steps: 100
+
+# 随机种子
+seed: 42
+
+# 恢复训练
+resume_from_checkpoint: null
+
+# 模型配置
+model:
+  vision_encoder:
+    model_name: "google/siglip2-base-patch16-224"
+    hidden_size: 768
+    num_patches: 196  # 14x14 patches
+    output_dim: 768
+    
+  projector:
+    input_dim: 768
+    hidden_dim: 1536
+    output_dim: 2048
+    activation: "gelu"
+
+  llm:
+    model_name: "Qwen/Qwen2.5-3B"
+    hidden_size: 2048
+    vocab_size: 151936
+    max_position_embeddings: 32768
+    num_hidden_layers: 28
+  
+  lora:
+    r: 64
+    alpha: 16
+    dropout: 0.05
+    target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+    lora_layers: 16  # 最后16层应用LoRA
