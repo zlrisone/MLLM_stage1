@@ -72,6 +72,7 @@ def validate(
 def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader, 
     optimizer: torch.optim.Optimizer, scheduler, device: torch.device,
     training_logger,start_epoch:int, num_epochs: int, config: dict,best_val_loss:float,checkpoint_manager):
+    epochs_without_improvement = 0
     
     for epoch in range(start_epoch, num_epochs):
 
@@ -95,8 +96,8 @@ def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader,
             pixel_values = batch["pixel_values"].to(device, non_blocking=True)
             input_ids = batch["input_ids"].to(device, non_blocking=True)
             attention_mask = batch["attention_mask"].to(device, non_blocking=True)
-            print(pixel_values.shape)
-            print(input_ids.shape)
+            # print(pixel_values.shape)
+            # print(input_ids.shape)
             outputs = model(
                 pixel_values=pixel_values,
                 input_ids=input_ids,
@@ -139,10 +140,10 @@ def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader,
                 )
                 
                 # 保存最佳模型
-                if val_loss < best_val_loss:
+                if val_loss < best_val_loss-0.0001:
                     best_val_loss = val_loss
                     checkpoint_manager.save_checkpoint(
-                        model, optimizer, scheduler, epoch, global_step, val_loss, config,
+                        model, epoch=epoch, step=global_step, val_loss=val_loss, config=config,
                         filename="checkpoint-best.pt"
                     )
                     training_logger.log_checkpoint(
@@ -150,7 +151,11 @@ def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader,
                         checkpoint_path="checkpoint-best.pt",
                         val_loss=val_loss,
                     )
-                
+                    epochs_without_improvement = 0
+                else:
+                    epochs_without_improvement += 1
+                    if epochs_without_improvement >= 3:
+                        return best_val_loss
                 model.train()
         epoch_avg_loss = total_loss / max(num_batches, 1)
         end_of_epoch_step = (epoch + 1) * len(train_loader) - 1
@@ -174,7 +179,7 @@ def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader,
         )
 
         # 保存最佳模型
-        if val_loss < best_val_loss:
+        if val_loss < best_val_loss-0.0001:
             best_val_loss = val_loss
             checkpoint_manager.save_checkpoint(
                 model=model,
@@ -191,6 +196,11 @@ def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader,
                 checkpoint_path="checkpoint-best.pt",
                 val_loss=val_loss,
             )
+            epochs_without_improvement = 0
+        else:
+            epochs_without_improvement += 1
+            if epochs_without_improvement >= 3:
+                return best_val_loss
         # 保存检查点
         checkpoint_path = checkpoint_manager.save_checkpoint(
             model=model,
