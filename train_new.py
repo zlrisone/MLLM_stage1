@@ -161,7 +161,7 @@ def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader,
             global_step=end_of_epoch_step,
         )
         # 每个 epoch 结束后做一次验证
-        val_loss = validate(model, val_loader, device)
+        val_loss = validate(model, val_loader, device, epoch)
         print(
             f"[Epoch {epoch + 1}/{num_epochs}] "
             f"train_avg_loss={epoch_avg_loss:.4f} | val_loss={val_loss:.4f}"
