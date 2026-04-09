@@ -39,7 +39,7 @@ def collect_embeddings(model, dataloader, device: torch.device) -> Tuple[torch.T
     pbar = tqdm(dataloader, desc="Collect embeddings", dynamic_ncols=True)
 
     for batch in pbar:
-        pixel_values = batch["image"].to(device, non_blocking=True)
+        pixel_values = batch["pixel_values"].to(device, non_blocking=True)
         input_ids = batch["input_ids"].to(device, non_blocking=True)
         attention_mask = batch["attention_mask"].to(device, non_blocking=True)
 
