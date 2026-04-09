@@ -2,3 +2,5 @@ wandb
 torch
 transformers
 pyyaml
+peft
+datasets

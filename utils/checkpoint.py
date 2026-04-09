@@ -25,7 +25,7 @@ class CheckpointManager:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.max_checkpoints = max_checkpoints
     
-    def save_checkpoint(self, model: torch.nn.Module, optimizer: torch.optim.Optimizer,
+    def save_checkpoint(self, model: torch.nn.Module, optimizer: Optional[Any],
                        scheduler: Optional[Any], epoch: int, step: int,
                        val_loss: float, config: dict, filename: str = None) -> str:
         """

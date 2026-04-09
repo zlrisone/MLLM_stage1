@@ -188,7 +188,7 @@ def main():
         batch_size=batch_size,
         num_workers=num_workers,
         max_length=config["dataset"]["max_length"],
-        sample_one_caption=True,
+        sample_one_caption=True,  # 改为True，与训练一致
         add_prompt=False,
         seed=config["seed"],
     )
@@ -202,6 +202,9 @@ def main():
     # 相似度矩阵
     text_embeds = text_embeds.to(image_embeds.dtype)
     similarity = image_embeds @ text_embeds.t()  # [N, N]
+    # 应用 logit_scale 如果模型有的话
+    if hasattr(model, 'logit_scale'):
+        similarity = model.logit_scale.item() * similarity + model.logit_bias.item()
 
     # Recall@K
     metrics = compute_recall_at_k(similarity, ks=(1, 5, 10))

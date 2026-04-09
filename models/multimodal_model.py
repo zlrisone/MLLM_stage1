@@ -42,6 +42,12 @@ class MultimodalModel(nn.Module):
         for p in self.projector.parameters():
             p.requires_grad = True
         
+        # SigLIP logit scale
+        
+        self.logit_scale = nn.Parameter(torch.tensor(2.6592))  # exp(2.6592) ~= 14.3
+        self.logit_bias = nn.Parameter(torch.tensor(0.0))
+        self.logit_scale.requires_grad = True
+        self.logit_bias.requires_grad = True
         # 模型参数统计
         self._log_model_info()
     def _log_model_info(self):
@@ -137,7 +143,7 @@ class MultimodalModel(nn.Module):
         text_embeds = self.encode_text(input_ids, attention_mask) # (B, H)
         text_embeds = text_embeds.to(image_embeds.dtype)
         logits = torch.matmul(image_embeds, text_embeds.t())     # (B, B)
-        # logits = self.logit_scale * logits + self.logit_bias
+        logits = self.logit_scale * logits + self.logit_bias
 
         loss = self.sigmoid_contrastive_loss(logits)
 
