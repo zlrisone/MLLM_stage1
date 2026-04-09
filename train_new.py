@@ -71,7 +71,7 @@ def validate(
 
 def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader, 
     optimizer: torch.optim.Optimizer, scheduler, device: torch.device,
-    start_epoch:int, num_epochs: int, config: dict,best_val_loss:float,checkpoint_manager):
+    training_logger,start_epoch:int, num_epochs: int, config: dict,best_val_loss:float,checkpoint_manager):
     
     for epoch in range(start_epoch, num_epochs):
 
