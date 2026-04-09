@@ -78,6 +78,8 @@ class CocoCaptionAlignmentCollator:
 
         for example in batch:
             image = example["image"]
+            if image.mode != "RGB":
+                image = image.convert("RGB")
             caption = self._select_caption(example)
 
             images.append(image)

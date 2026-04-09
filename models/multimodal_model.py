@@ -99,10 +99,14 @@ class MultimodalModel(nn.Module):
         return: (B, H)
         """
         with torch.no_grad():
-            vision_features = self.vision_encoder(pixel_values)   # (B, V, 768)
+            # print(pixel_values.shape)
+            outputs = self.vision_encoder.get_image_features(pixel_values) 
+        
+        vision_features = outputs.pooler_output          # (B, D)
+        print("vision_features.shape =", vision_features.shape)
 
-        projected = self.projector(vision_features)               # (B, V, H)
-        image_embeds = projected.mean(dim=1)                     # (B, H)
+        image_embeds = self.projector(vision_features)                # (B, H)
+        print("image_embeds.shape =", image_embeds.shape)
         image_embeds = self.l2_normalize(image_embeds)
         return image_embeds
     
@@ -117,8 +121,8 @@ class MultimodalModel(nn.Module):
         return: (B, H)
         """
         with torch.no_grad():
-            text_embeds = self.decoder.encode_text(input_ids, attention_mask)
-
+            text_embeds = self.llm_decoder.encode_text(input_ids, attention_mask)
+        print("text_embeds.shape =", text_embeds.shape)
         # (B, H)
         text_embeds = self.l2_normalize(text_embeds)
         return text_embeds
@@ -131,7 +135,7 @@ class MultimodalModel(nn.Module):
     ) -> Dict[str, torch.Tensor]:
         image_embeds = self.encode_image(pixel_values)           # (B, H)
         text_embeds = self.encode_text(input_ids, attention_mask) # (B, H)
-
+        text_embeds = text_embeds.to(image_embeds.dtype)
         logits = torch.matmul(image_embeds, text_embeds.t())     # (B, B)
         # logits = self.logit_scale * logits + self.logit_bias
 

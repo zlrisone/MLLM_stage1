@@ -95,7 +95,8 @@ def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader,
             pixel_values = batch["pixel_values"].to(device, non_blocking=True)
             input_ids = batch["input_ids"].to(device, non_blocking=True)
             attention_mask = batch["attention_mask"].to(device, non_blocking=True)
-
+            print(pixel_values.shape)
+            print(input_ids.shape)
             outputs = model(
                 pixel_values=pixel_values,
                 input_ids=input_ids,
@@ -125,7 +126,7 @@ def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader,
 
             # 日志记录
             if global_step % config['logging_steps'] == 0:
-                training_logger.log_step(loss.item(), global_step, current_lr)
+                training_logger.log_train_step(loss.item(), global_step, current_lr)
             
             # 验证和保存检查点
             if global_step % config['eval_steps'] == 0 and global_step > 0:
