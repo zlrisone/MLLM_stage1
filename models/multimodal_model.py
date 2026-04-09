@@ -103,10 +103,10 @@ class MultimodalModel(nn.Module):
             outputs = self.vision_encoder.get_image_features(pixel_values) 
         
         vision_features = outputs.pooler_output          # (B, D)
-        print("vision_features.shape =", vision_features.shape)
+        # print("vision_features.shape =", vision_features.shape)
 
         image_embeds = self.projector(vision_features)                # (B, H)
-        print("image_embeds.shape =", image_embeds.shape)
+        # print("image_embeds.shape =", image_embeds.shape)
         image_embeds = self.l2_normalize(image_embeds)
         return image_embeds
     
@@ -122,7 +122,7 @@ class MultimodalModel(nn.Module):
         """
         with torch.no_grad():
             text_embeds = self.llm_decoder.encode_text(input_ids, attention_mask)
-        print("text_embeds.shape =", text_embeds.shape)
+        # print("text_embeds.shape =", text_embeds.shape)
         # (B, H)
         text_embeds = self.l2_normalize(text_embeds)
         return text_embeds
