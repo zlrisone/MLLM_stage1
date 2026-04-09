@@ -183,8 +183,8 @@ def train(model: nn.Module, train_loader : DataLoader, val_loader : DataLoader,
             best_val_loss = val_loss
             checkpoint_manager.save_checkpoint(
                 model=model,
-                optimizer=optimizer,
-                scheduler=scheduler,
+                optimizer=None,
+                scheduler=None,
                 epoch=epoch,
                 step=end_of_epoch_step,
                 val_loss=val_loss,
