@@ -81,7 +81,7 @@ def compute_recall_at_k(similarity: torch.Tensor, ks=(1, 5, 10)) -> Dict[str, fl
 
     results: Dict[str, float] = {}
 
-    max_k = max(ks)
+    max_k = min(max(ks), num_samples)
 
     # Image -> Text
     i2t_topk = similarity.topk(k=max_k, dim=1).indices  # [N, max_k]
@@ -198,8 +198,9 @@ def main():
 
     # 收集 embeddings
     image_embeds, text_embeds = collect_embeddings(model, eval_loader, device)
-
+    print(f"Collected {image_embeds.size(0)} image-text pairs for evaluation.")
     # 相似度矩阵
+    text_embeds = text_embeds.to(image_embeds.dtype)
     similarity = image_embeds @ text_embeds.t()  # [N, N]
 
     # Recall@K

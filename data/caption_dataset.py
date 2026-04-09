@@ -239,6 +239,59 @@ def build_train_val_dataloaders(
     )
 
     return train_dataset, val_dataset, train_loader, val_loader
+def build_val_dataloaders(
+    vision_model_name: str,
+    qwen_model_name: str,
+    split: str = "val",
+    train_ratio: float = 0.9,
+    batch_size: int = 8,
+    num_workers: int = 0,
+    max_length: int = 64,
+    sample_one_caption: bool = True,
+    add_prompt: bool = False,
+    seed: int = 42,
+):
+    dataset, _ = build_coco_caption_dataloader(
+        vision_model_name=vision_model_name,
+        qwen_model_name=qwen_model_name,
+        split=split,
+        batch_size=batch_size,
+        num_workers=0,
+        max_length=max_length,
+        shuffle=False,
+        sample_one_caption=sample_one_caption,
+        add_prompt=add_prompt,
+        streaming=False,
+    )
+
+    total_size = len(dataset)
+    train_size = int(total_size * train_ratio)
+    val_size = total_size - train_size
+
+    generator = torch.Generator().manual_seed(seed)
+    train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=generator)
+
+    # 重新构造 collator
+    
+    collator = CocoCaptionAlignmentCollator(
+        vision_model_name=vision_model_name,
+        qwen_model_name=qwen_model_name,
+        max_length=max_length,
+        sample_one_caption=sample_one_caption,
+        add_prompt=add_prompt,
+    )
+
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available(),
+        drop_last=False,
+        collate_fn=collator,
+    )
+
+    return val_dataset, val_loader
 if __name__=="__main__":
     vision_model_name = "google/siglip2-base-patch16-224"
     qwen_model_name = "Qwen/Qwen2.5-3B"
