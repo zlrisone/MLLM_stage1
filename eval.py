@@ -8,7 +8,8 @@ import yaml
 from tqdm import tqdm
 
 from models.multimodal_model import create_multimodal_model
-from data.caption_dataset import build_val_dataloaders
+# from data.caption_dataset import build_val_dataloaders
+from data.flickr8k_dataset import build_flickr_dataloader
 from utils.checkpoint import create_checkpoint_manager
 
 
@@ -144,7 +145,7 @@ def main():
     parser.add_argument(
         "--split",
         type=str,
-        default="val",
+        default="test",
         help="Dataset split",
     )
     parser.add_argument(
@@ -180,7 +181,7 @@ def main():
     num_workers = args.num_workers if args.num_workers is not None else config["dataset"]["num_workers"]
 
     # 构建数据
-    val_dataset, eval_loader = build_val_dataloaders(
+    val_dataset, eval_loader = build_flickr_dataloader(
         vision_model_name=config["model"]["vision_encoder"]["model_name"],
         qwen_model_name=config["model"]["llm"]["model_name"],
         split=args.split,
